@@ -1,0 +1,13 @@
+# Default ignored files
+/workspace.xml
+# Datasource local storage ignored files
+/dataSources.local.xml
+
+
+# Datasource local storage ignored files
+<<<<<<< HEAD
+=======
+/dataSources/
+# Datasource local storage ignored files
+>>>>>>> origin/develop
+/dataSources/

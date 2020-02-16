@@ -1,0 +1,236 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema simpleOrder
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema simpleorder
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema simpleorder
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `simpleorder` DEFAULT CHARACTER SET utf8 ;
+USE `simpleorder` ;
+
+-- -----------------------------------------------------
+-- Table `simpleorder`.`role`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `simpleorder`.`role` (
+  `roleId` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`roleId`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 3
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `simpleorder`.`user`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `simpleorder`.`user` (
+  `userId` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `last_name` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  `theChosenOne` TINYINT(4) NULL DEFAULT '0',
+  `pathImage` VARCHAR(255) NULL DEFAULT NULL,
+  `Role_roleId` INT(11) NOT NULL,
+  `status` INT(11) NOT NULL,
+  PRIMARY KEY (`userId`),
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
+  INDEX `fk_User_Role_idx` (`Role_roleId` ASC) VISIBLE,
+  CONSTRAINT `fk_User_Role`
+    FOREIGN KEY (`Role_roleId`)
+    REFERENCES `simpleorder`.`role` (`roleId`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 24
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `simpleorder`.`confirmationtoken`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `simpleorder`.`confirmationtoken` (
+  `tokenId` INT(11) NOT NULL AUTO_INCREMENT,
+  `confirmationToken` VARCHAR(255) NOT NULL,
+  `createdDate` DATE NOT NULL,
+  `confirmedDate` DATE NULL DEFAULT NULL,
+  `User_userId` INT(11) NOT NULL,
+  PRIMARY KEY (`tokenId`),
+  INDEX `fk_ConfirmationToken_User_idx` (`User_userId` ASC) VISIBLE,
+  CONSTRAINT `fk_ConfirmationToken_User`
+    FOREIGN KEY (`User_userId`)
+    REFERENCES `simpleorder`.`user` (`userId`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 24
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `simpleorder`.`weaklymenu`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `simpleorder`.`weaklymenu` (
+  `weaklyMenuId` INT(11) NOT NULL AUTO_INCREMENT,
+  `dateFrom` DATE NOT NULL,
+  `dateTo` DATE NOT NULL,
+  `imagePath` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`weaklyMenuId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `simpleorder`.`dailymenu`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `simpleorder`.`dailymenu` (
+  `dailyMenuId` INT(11) NOT NULL AUTO_INCREMENT,
+  `date` DATE NOT NULL,
+  `WeaklyMenu_weaklyMenuId` INT(11) NOT NULL,
+  PRIMARY KEY (`dailyMenuId`),
+  INDEX `fk_DailyMenu_WeaklyMenu_idx` (`WeaklyMenu_weaklyMenuId` ASC) VISIBLE,
+  CONSTRAINT `fk_DailyMenu_WeaklyMenu`
+    FOREIGN KEY (`WeaklyMenu_weaklyMenuId`)
+    REFERENCES `simpleorder`.`weaklymenu` (`weaklyMenuId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `simpleorder`.`meal`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `simpleorder`.`meal` (
+  `mealId` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `description` VARCHAR(45) NULL DEFAULT NULL,
+  `earlyOrder` TINYINT(4) NOT NULL DEFAULT '0',
+  `isRegular` TINYINT(4) NOT NULL,
+  PRIMARY KEY (`mealId`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `simpleorder`.`dailymenumeal`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `simpleorder`.`dailymenumeal` (
+  `DailyMenu_dailyMenuId` INT(11) NOT NULL,
+  `Meal_mealId` INT(11) NOT NULL,
+  PRIMARY KEY (`DailyMenu_dailyMenuId`, `Meal_mealId`),
+  INDEX `fk_DailyMenuMeal_Meal_idx` (`Meal_mealId` ASC) VISIBLE,
+  INDEX `fk_DailyMenuMeal_DailyMenu_idx` (`DailyMenu_dailyMenuId` ASC) VISIBLE,
+  CONSTRAINT `fk_DailyMenuMeal_DailyMenu`
+    FOREIGN KEY (`DailyMenu_dailyMenuId`)
+    REFERENCES `simpleorder`.`dailymenu` (`dailyMenuId`),
+  CONSTRAINT `fk_DailyMenuMeal_Meal`
+    FOREIGN KEY (`Meal_mealId`)
+    REFERENCES `simpleorder`.`meal` (`mealId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `simpleorder`.`type`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `simpleorder`.`type` (
+  `typeId` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `price` DOUBLE NOT NULL,
+  PRIMARY KEY (`typeId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `simpleorder`.`mealtype`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `simpleorder`.`mealtype` (
+  `Meal_mealId` INT(11) NOT NULL,
+  `Type_typeId` INT(11) NOT NULL,
+  PRIMARY KEY (`Meal_mealId`, `Type_typeId`),
+  INDEX `fk_MealType_Type_idx` (`Type_typeId` ASC) VISIBLE,
+  INDEX `fk_MealType_Meal_idx` (`Meal_mealId` ASC) VISIBLE,
+  CONSTRAINT `fk_MealType_Meal`
+    FOREIGN KEY (`Meal_mealId`)
+    REFERENCES `simpleorder`.`meal` (`mealId`),
+  CONSTRAINT `fk_MealType_Type`
+    FOREIGN KEY (`Type_typeId`)
+    REFERENCES `simpleorder`.`type` (`typeId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `simpleorder`.`userorder`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `simpleorder`.`userorder` (
+  `userOrderId` INT(11) NOT NULL AUTO_INCREMENT,
+  `paid` TINYINT(4) NOT NULL DEFAULT '0',
+  `date` DATE NOT NULL,
+  `User_userId` INT(11) NOT NULL,
+  PRIMARY KEY (`userOrderId`),
+  INDEX `fk_UserOrder_User_idx` (`User_userId` ASC) VISIBLE,
+  CONSTRAINT `fk_UserOrder_User`
+    FOREIGN KEY (`User_userId`)
+    REFERENCES `simpleorder`.`user` (`userId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `simpleorder`.`mealtypeuserorder`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `simpleorder`.`mealtypeuserorder` (
+  `MealType_Meal_mealId` INT(11) NOT NULL,
+  `MealType_Type_typeId` INT(11) NOT NULL,
+  `UserOrder_userOrderId` INT(11) NOT NULL,
+  PRIMARY KEY (`MealType_Meal_mealId`, `UserOrder_userOrderId`, `MealType_Type_typeId`),
+  INDEX `fk_MealTypeUserOrder_UserOrder_idx` (`UserOrder_userOrderId` ASC) VISIBLE,
+  INDEX `fk_MealTypeUserOrder_MealType_idx` (`MealType_Meal_mealId` ASC, `MealType_Type_typeId` ASC) VISIBLE,
+  CONSTRAINT `fk_MealTypeUserOrder_MealType`
+    FOREIGN KEY (`MealType_Meal_mealId` , `MealType_Type_typeId`)
+    REFERENCES `simpleorder`.`mealtype` (`Meal_mealId` , `Type_typeId`),
+  CONSTRAINT `fk_MealTypeUserOrder_UserOrder`
+    FOREIGN KEY (`UserOrder_userOrderId`)
+    REFERENCES `simpleorder`.`userorder` (`userOrderId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+-- -----------------------------------------------------
+-- Table `simpleOrder`.`ConfirmationToken`
+-- -----------------------------------------------------
+
+CREATE TABLE `simpleorder`.`ViberSender` (
+  `viberSenderId` INT NOT NULL AUTO_INCREMENT,
+  `userId` VARCHAR(45) NOT NULL,
+  `time` DATE NOT NULL,
+  PRIMARY KEY (`viberSenderId`));
+
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+-- -----------------------------------------------------
+-- INSERT INTO TABLE
+-- -----------------------------------------------------
+
+INSERT INTO role (name) VALUES ("ADMIN");
+INSERT INTO role (name) VALUES ("USER");
+
+INSERT INTO type (name,price) VALUES ("small",190);
+INSERT INTO type (name,price) VALUES ("big",230);
+
+
+ALTER TABLE `simpleorder`.`user`
+ADD COLUMN `token` VARCHAR(255) NULL AFTER `status`;
+
+ALTER TABLE `simpleorder`.`type`
+ADD COLUMN `regular` TINYINT NOT NULL AFTER `price`;
